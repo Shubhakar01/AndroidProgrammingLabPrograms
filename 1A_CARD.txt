@@ -1,0 +1,68 @@
+1A_Card
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+ 	xmlns:tools="http://schemas.android.com/tools"
+ 	android:layout_width="match_parent"
+ 	android:layout_height="match_parent"
+ 	android:orientation="vertical"
+ 	android:background="@color/purple_200"
+ 	tools:context=".MainActivity">
+ 	<LinearLayout
+ 	android:layout_width="match_parent"
+ 	android:layout_height="wrap_content"
+ 	android:orientation="vertical"
+ 	android:gravity="right" >
+ 		<ImageView
+ 		android:layout_width="wrap_content"
+ 		android:layout_height="wrap_content"
+ 		android:src="@drawable/logo" />
+	</LinearLayout>
+ 	<TextView
+ 		android:layout_width="match_parent"
+ 		android:layout_height="wrap_content"
+ 		android:gravity="center"
+ 		android:textSize="20sp"
+ 		android:textStyle="bold"
+ 		android:text="DR. AMBEDKAR INSTITUTE OF TECHNOLOGY" />
+ 	<TextView
+ 		android:layout_width="match_parent"
+ 		android:layout_height="wrap_content"
+ 		android:gravity="center"
+ 		android:textSize="15sp"
+ 		android:textStyle="bold"
+ 		android:text="S SHUBHAKAR" />
+ 	<TextView
+ 		android:layout_width="match_parent"
+ 		android:layout_height="wrap_content"
+ 		android:textSize="15sp"
+ 		android:textStyle="bold"
+ 		android:gravity="center"
+ 		android:text="STUDENT" />
+ 	<View
+ 		android:layout_width="wrap_content"
+ 		android:layout_height="4dp"
+ 		android:background="@android:color/black" />
+ 	<TextView
+ 		android:layout_width="match_parent"
+		android:gravity="center"
+ 		android:textSize="15sp"
+ 		android:textStyle="bold"
+ 		android:layout_height="wrap_content"
+ 		android:text="8105213549" />
+ 	<TextView
+ 		android:layout_width="match_parent"
+ 		android:layout_height="wrap_content"
+ 		android:textSize="15sp"
+ 		android:textStyle="bold"
+ 		android:gravity="center"
+ 		android:text="BANGALORE" />
+ 	<TextView
+ 		android:layout_width="match_parent"
+ 		android:layout_height="wrap_content"
+ 		android:gravity="center"
+ 		android:textSize="15sp"
+ 		android:textStyle="bold"
+ 		android:text="1da19cs139.cs@drait.edu.in" />
+</LinearLayout>

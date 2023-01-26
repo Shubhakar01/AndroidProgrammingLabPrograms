@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:text="Enter a word" />
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:id="@+id/txt_text"/>
+    <Button
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Convert Text To Speech"
+        android:id="@+id/btn_speech" />
+</LinearLayout>
+
+
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+    EditText txttext;
+    Button btnspeech;
+    TextToSpeech texttospeech;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        txttext = findViewById(R.id.txt_text);
+        btnspeech = findViewById(R.id.btn_speech);
+        btnspeech.setOnClickListener(this);
+        texttospeech = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int i) {
+                if (i != TextToSpeech.ERROR) {
+                    texttospeech.setLanguage(Locale.ENGLISH);
+                }
+            }
+        });
+    }
+    @Override
+    public void onClick(View v){
+        String tospeak=txttext.getText().toString();
+        Toast.makeText(this,tospeak, Toast.LENGTH_SHORT).show();
+        texttospeech.speak(tospeak,TextToSpeech.QUEUE_FLUSH,null);
+    }
+}
