@@ -1,0 +1,192 @@
+PROJECT 1 (Here we are creating and adding data to the database)
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    tools:context=".MainActivity">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enter date:" />
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/txt_date" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enter notes Content:" />
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="25mm"
+        android:id="@+id/txt_note"/>
+    <Button
+        android:layout_width="25mm"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_add"
+        android:text="Add Note" />
+</LinearLayout>
+
+
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+    EditText date, note;
+    Button add;
+    @Override
+    protected void onCreate(Bundle b) {
+        super.onCreate(b);
+        setContentView(R.layout.activity_main);
+        date = findViewById(R.id.txt_date);
+        note = findViewById(R.id.txt_note);
+        add = findViewById(R.id.btn_add);
+        add.setOnClickListener(this);
+    }
+    @Override
+    public void onClick(View v) {
+        if(v.equals(add)){
+            String dateText = date.getText().toString();
+            String noteText = note.getText().toString();
+            ContentValues cv = new ContentValues();
+            cv.put("date", dateText);
+            cv.put("note", noteText);
+            getContentResolver().insert(NotesProvider.CONTENT_URI, cv);
+            Toast.makeText(this, "Note added", Toast.LENGTH_SHORT).show();
+        }
+    }
+}
+
+
+
+public class NotesProvider extends ContentProvider {
+    static String AUTHORITY = "com.example.notesprovider";
+    static String BASE_PATH = "notes";
+    static Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + BASE_PATH);
+    ProviderDatabase dbHelper;
+    SQLiteDatabase db;
+    @Override
+    public boolean onCreate() {
+        dbHelper = new ProviderDatabase(getContext(), ProviderDatabase.DATABASE_NAME, null, 1);
+        return (dbHelper == null) ? false : true;
+    }
+    @Override
+    public Cursor query(Uri uri, String[] strings, String s, String[] strings1, String s1) {
+        db = dbHelper.getReadableDatabase();
+        Cursor c = db.query(ProviderDatabase.TABLE_NAME, strings, s, strings1, null, null, null);
+        return c;
+    }
+    @Override
+    public String getType(Uri uri) {
+        return null;
+    }
+    @Override
+    public Uri insert(Uri uri, ContentValues cv) {
+        db = dbHelper.getWritableDatabase();
+        db.insert(ProviderDatabase.TABLE_NAME, null, cv);
+        db.close();
+        return null;
+    }
+    @Override
+    public int delete(Uri uri, String s, String[] strings) {
+        return 0;
+    }
+    @Override
+    public int update(Uri uri, ContentValues cv, String s, String[] strings) {
+        return 0;
+    }
+}
+
+
+
+public class ProviderDatabase extends SQLiteOpenHelper {
+    public static String DATABASE_NAME = "notes.db";
+    public static String TABLE_NAME = "notes";
+    public ProviderDatabase(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
+        super(context, name, factory, version);
+    }
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE " + TABLE_NAME + " (date TEXT, note TEXT);");
+    }
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int i, int i1) {
+    }
+}
+
+
+Add before the activity tag begins
+<provider
+        android:authorities="com.example.notesprovider"
+        android:name=".NotesProvider"
+        android:exported="true"
+        android:enabled="true"/>
+
+
+
+
+PROJECT 2 (Here the data is being accessed)
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+    <EditText
+        android:id="@+id/txt_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="Enter Date to Fetch Note"/>
+    <Button
+        android:id="@+id/btn_search"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Search"/>
+    <TextView
+        android:id="@+id/txt_display"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+</LinearLayout>
+
+
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+    EditText date;
+    Button search;
+    TextView display;
+    @Override
+    protected void onCreate(Bundle b) {
+        super.onCreate(b);
+        setContentView(R.layout.activity_main);
+        date = findViewById(R.id.txt_date);
+        search = findViewById(R.id.btn_search);
+        display = findViewById(R.id.txt_display);
+        search.setOnClickListener(this);
+    }
+    @Override
+    public void onClick(View v) {
+        if (v.equals(search)) {
+            String searchDate = date.getText().toString();
+            Uri uri = Uri.parse("content://com.example.notesprovider/notes");
+            String[] columns = {"date", "note"};
+            String selection = "date = ?";
+            String[] selectionArgs = {searchDate};
+            Cursor c = getContentResolver().query(uri, columns, selection, selectionArgs, null);
+            if (c.moveToNext()) {
+                String dateText = c.getString(0);
+                String noteText = c.getString(1);
+                display.setText(dateText + " : " + noteText);
+            } else {
+                Toast.makeText(this, "No Note Found", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+}
