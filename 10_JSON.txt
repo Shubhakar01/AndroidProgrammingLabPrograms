@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_json"
+        android:text="Parse JSON" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/txt_result" />
+</LinearLayout>
+
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+    Button btnjson;
+    TextView txtresult;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        btnjson=findViewById(R.id.btn_json);
+        btnjson.setOnClickListener(this);
+        txtresult=findViewById(R.id.txt_result);
+    }
+    public void onClick(View v){
+        try {
+            InputStream is=getAssets().open("example.json");
+            int size=is.available();
+            byte[] buffer=new byte[size];
+            is.read(buffer);
+            is.close();
+            String json=new String(buffer,"UTF-8");
+            JSONArray obj=new JSONArray(json);
+            txtresult.setText("");
+            for(int i=0;i<obj.length();i++){
+                JSONObject ob1=obj.getJSONObject(i);
+                String s1=ob1.getString("name");
+                String s2=ob1.getString("latitude");
+                String s3=ob1.getString("longitude");
+                String s4=ob1.getString("temperature");
+                txtresult.setText(txtresult.getText()+"Name:"+s1+" Latitude:"+s2+" Longitude:"+s3+" Temperature:"+s4+"\n");
+            }
+        }
+        catch (Exception e){}
+    }
+}
+
+
+example.json (right click App->New->Folder->Assets Folder->New File->save as example.json)
+
+[
+  {
+    "name": "Mysore",
+    "latitude": "66",
+    "longitude": "99",
+    "temperature": "24"
+  },
+  {
+    "name": "Bangalore",
+    "latitude": "69",
+    "longitude": "96",
+    "temperature": "21"
+  }
+]
