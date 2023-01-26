@@ -1,0 +1,199 @@
+public class MyDatabase extends SQLiteOpenHelper {
+    public static String DATABASE_NAME="Employee.db";
+    public static String EMPLOYEE_TABLE="Employee";
+    public MyDatabase(@Nullable Context context, @Nullable String name, @Nullable SQLiteDatabase.CursorFactory factory, int version) {
+        super(context, name, factory, version);
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        db.execSQL("create table Employee ( id TEXT ,name TEXT ,age TEXT ,address TEXT)");
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
+    }
+}
+
+activity_main.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Employee ID"/>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/txt_id"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Employee Name"/>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/txt_name"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Employee Age"/>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/txt_age"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Employee Address"/>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/txt_address"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center">
+        <Button
+            android:id="@+id/btn_submit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginRight="10dp"
+            android:text="Submit" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Search"
+            android:layout_gravity="center"
+            android:id="@+id/btn_search"/>
+    </LinearLayout>
+</LinearLayout>
+
+
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+    EditText txtid,txtname,txtage,txtaddress;
+    Button btnsubmit,btnsearch;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        txtid=findViewById(R.id.txt_id);
+        txtname=findViewById(R.id.txt_name);
+        txtage=findViewById(R.id.txt_age);
+        txtaddress=findViewById(R.id.txt_address);
+        btnsearch=findViewById(R.id.btn_search);
+        btnsearch.setOnClickListener(this);
+        btnsubmit=findViewById(R.id.btn_submit);
+        btnsubmit.setOnClickListener(this);
+    }
+    @Override
+    public void onClick(View v) {
+        if(v.equals(btnsubmit)){
+            String sid=txtid.getText().toString();
+            String sname=txtname.getText().toString();
+            String sage=txtage.getText().toString();
+            String saddress=txtaddress.getText().toString();
+            MyDatabase dat=new MyDatabase(this,MyDatabase.DATABASE_NAME,null,1);
+            SQLiteDatabase db=dat.getWritableDatabase();
+            ContentValues cv=new ContentValues();
+            cv.put("id",sid);
+            cv.put("name",sname);
+            cv.put("age",sage);
+            cv.put("address",saddress);
+            db.insert("Employee",null,cv);
+            db.close();
+            Toast.makeText(this, "Data Inserted Successfully", Toast.LENGTH_SHORT).show();
+        }
+        else if(v.equals(btnsearch)){
+            Intent it=new Intent(this,SearchActivity.class);
+            startActivity(it);
+        }
+    }
+}
+
+activity_search.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:layout_height="match_parent">
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Enter Employee id" />
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/txt_empid"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Search"
+        android:layout_gravity="center"
+        android:id="@+id/txt_search"/>
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:id="@+id/txt_display"/>
+</LinearLayout>
+
+
+
+public class SearchActivity extends AppCompatActivity implements View.OnClickListener {
+    EditText txtempid;
+    Button btnsearch;
+    TextView txtdisplay;
+    public void onCreate(Bundle b)
+    {
+        super.onCreate(b);
+        setContentView(R.layout.activity_search);
+        txtempid=findViewById(R.id.txt_empid);
+        btnsearch=findViewById(R.id.txt_search);
+        txtdisplay=findViewById(R.id.txt_display);
+        btnsearch.setOnClickListener(this);
+    }
+    @Override
+    public void onClick(View v) {
+        if(v.equals(btnsearch))
+        {
+            String eid=txtempid.getText().toString();
+            MyDatabase dat=new MyDatabase(this, MyDatabase.DATABASE_NAME, null, 1);
+            SQLiteDatabase database=dat.getReadableDatabase();
+            String[] columns=new String[] {"id","name","age","address"};
+            String where="id=?";
+            String[] value= new String[] { eid.trim() };
+            Cursor cu=database.query("Employee", columns, where, value, null, null, null);
+            txtdisplay.setText("");
+            if(cu.moveToNext())
+            {
+                String id=cu.getString(0);
+                String name=cu.getString(1);
+                String age=cu.getString(2);
+                String address=cu.getString(3);
+                txtdisplay.append(id+ " " +name+ " "+age+ " "+address+"\n");
+            }
+            else
+            {
+                Toast.makeText(this, "No Id Exist", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+}
+
+
+Add Below line after activity tag is closed in manifest file
+<activity android:name=".SearchActivity"></activity>
