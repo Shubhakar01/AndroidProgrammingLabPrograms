@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+    <TextView
+        android:id="@+id/txt_display"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Counter" />
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Start"
+        android:id="@+id/btn_start" />
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Stop"
+        android:id="@+id/btn_stop" />
+</LinearLayout>
+
+
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener,Runnable {
+    int i = 0;
+    TextView display;
+    Button btnstart, btnstop;
+    Thread thread;
+    boolean running = false;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        btnstart =findViewById(R.id.btn_start);
+        btnstop =findViewById(R.id.btn_stop);
+        btnstart.setOnClickListener(this);
+        btnstop.setOnClickListener(this);
+        display =findViewById(R.id.txt_display);
+    }
+    @Override
+    public void onClick(View v) {
+        if (v.equals(btnstart)) {
+            running = true;
+            thread = new Thread(this);
+            thread.start();
+        }
+        else if (v.equals(btnstop)) {
+            running = false;
+        }
+    }
+    Handler hand = new Handler() {
+        public void handleMessage(Message m) {
+            display.setText("" + m.what);
+        }
+    };
+    @Override
+    public void run() {
+        while (i < 100 && running) {
+            try {
+                Thread.sleep(1000);
+            }
+            catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            hand.sendEmptyMessage(i);
+            i++;
+        }
+    }
+}
