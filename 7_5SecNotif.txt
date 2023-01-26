@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+    <Button
+        android:id="@+id/btn_start"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="START NOTIFICATION" />
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_stop"
+        android:text="STOP NOTIFICATION"/>
+</LinearLayout>
+
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+    Button start,stop;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        start=(Button) findViewById(R.id.btn_start);
+        start.setOnClickListener(this);
+        stop=(Button) findViewById(R.id.btn_stop);
+        stop.setOnClickListener(this);
+    }
+    @Override
+    public void onClick(View v) {
+        if(v.equals(start)){
+            Intent it=new Intent(this, ServiceClass.class);
+            startService(it);
+        }
+        else if(v.equals(stop)){
+            Intent it=new Intent(this, ServiceClass.class);
+            stopService(it);
+        }
+    }
+}
+
+
+
+public class ServiceClass extends Service {
+    boolean running = false;
+    Mythread thread;
+    public void onCreate() {
+        super.onCreate();
+        Toast.makeText(getBaseContext(), "service created", Toast.LENGTH_LONG).show();
+        running = true;
+        thread = new Mythread();
+        thread.start();
+    }
+    public int onStartCommand(Intent intent, int flag, int startid) {
+        super.onStartCommand(intent, flag, startid);
+        Toast.makeText(getBaseContext(), "service started", Toast.LENGTH_LONG).show();
+        if (!thread.isAlive()) {
+            thread = new Mythread();
+            thread.start();
+        }
+        return Service.START_NOT_STICKY;
+    }
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+    public void onDestroy() {
+        running = false;
+        Toast.makeText(getBaseContext(), "service stopped", Toast.LENGTH_LONG).show();
+        super.onDestroy();
+    }
+    Handler hand = new Handler() {
+        public void handleMessage(Message m) {
+            NotificationManager man = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(getBaseContext());
+            builder.setContentTitle("from service");
+            builder.setContentText("Hi Shubhakar" + m.what);
+            builder.setSmallIcon(R.drawable.ic_launcher_background);
+            builder.setContentIntent(PendingIntent.getActivity(getBaseContext(), 1, new Intent(getBaseContext(), MainActivity.class), Intent.FILL_IN_ACTION));
+            Notification nof = builder.build();
+            man.notify(100, nof);
+        }
+    };
+    class Mythread extends Thread {
+        public void run() {
+            int i = 0;
+            while (running) {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                hand.sendEmptyMessage(i++);
+            }
+        }
+    }
+}
+
+
+Add in manifest file after the closing of activity tag
+<service android:name=".ServiceClass"/>
